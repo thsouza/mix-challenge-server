@@ -9,6 +9,9 @@ const opts = {}
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken()
 opts.secretOrKey = process.env.SECRET_OR_KEY
 
+/**
+ * Estratégia de utilização do token JWT
+ */
 module.exports = passport => {
     passport.use(
         new JwtStrategy(opts, (jwtPayload, done) => {

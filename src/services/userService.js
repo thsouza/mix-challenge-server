@@ -11,16 +11,21 @@ const User = require('../models/User');
 
 class UserService {
 
+    /**
+     * Registra um novo usuário
+     * @param {*} req 
+     * @param {*} res 
+     * @param {*} next 
+     */
     async register(req, res, next) {
         try {
             const { error, isValid } = validateRegister.validate(req.body);
 
-            // Check validation
             if (!isValid) {
                 return util.resultError400(res, error);
             }
 
-            const user = await User.findOne({ email: req.body.userName });
+            const user = await User.findOne({ userName: req.body.userName });
                 
             if (user) {
                 return util.resultWarning400(res, 'Usuário já existe');
@@ -32,39 +37,33 @@ class UserService {
                 password: req.body.password
             });
 
+            /* Criptografa a senha informada para gravação no banco de dados */
             bcrypt.genSalt(10, (err, salt) => {
                 bcrypt.hash(newUser.password, salt, (err, hash) => {
                     if (err) throw err;
                     newUser.password = hash;
-                    newUser
-                        .save()
-                        .then(user => {
-                            // User matched
+                    newUser.save().then(user => {
                             const payload = {
                                 id: user.id,
                                 userName: user.userName,
                                 admin: user.admin
-                            }; // Create jwt payload
+                            }; // Cria o jwt payload
 
-                            // Sign token                            
-                            jwt.sign(
-                                payload,
-                                process.env.SECRET_OR_KEY,
-                                {},
-                                (err, token) => {
-                                    const userData = {
-                                        _id: user._id,
-                                        userName: user.userName,
-                                        admin: user.admin
-                                    };
+                            // Gera o token                            
+                            // jwt.sign(payload, keys.secretOrKey, {expiresIn: 3600}, (err, token) => {
+                            jwt.sign(payload, process.env.SECRET_OR_KEY, {}, (err, token) => {
+                                const userData = {
+                                    _id: user._id,
+                                    userName: user.userName,
+                                    admin: user.admin
+                                };
 
-                                    res.json({
-                                        success: true,
-                                        token: 'Bearer ' + token,
-                                        user: userData
-                                    });
-                                }
-                            );
+                                res.json({
+                                    success: true,
+                                    token: 'Bearer ' + token,
+                                    user: userData
+                                });
+                            });
                         });
                 });
             });            
@@ -74,11 +73,16 @@ class UserService {
         }
     }
 
+    /**
+     * Realiza o login do usuário
+     * @param {*} req 
+     * @param {*} res 
+     * @param {*} next 
+     */
     login(req, res, next) {
         try {
             const { error, isValid } = validateLogin.validate(req.body);
 
-            // Check validation
             if (!isValid) {
                 return util.resultError400(res, error);
             }
@@ -86,32 +90,25 @@ class UserService {
             const userName = req.body.userName;
             const password = req.body.password;
 
-            // Find user by userName
-            User.findOne({ userName: userName })
-                .select('+password')
-                .then(user => {
-                    // Check for user
+            // Localiza o usuário pelo nome e retorna a senha para verificação
+            User.findOne({ userName: userName }).select('+password').then(user => {
                     if (!user) {
                         return util.resultError400(res, 'Usuário não encontrado!');
                     }
 
-                    // Check password
+                    // Verifica a senha
                     bcrypt.compare(password, user.password).then(isMatch => {
                         if (isMatch) {
-                            // User matched
+                            // Senha correta
                             const payload = {
                                 id: user.id,
                                 userName: user.userName,
                                 admin: user.admin
-                            }; // Create jwt payload
+                            }; // Cria o jwt payload
 
-                            // Sign token
+                            // Gera o token
                             // jwt.sign(payload, keys.secretOrKey, {expiresIn: 3600}, (err, token) => {
-                            jwt.sign(
-                                payload,
-                                process.env.SECRET_OR_KEY,
-                                {},
-                                (err, token) => {
+                            jwt.sign(payload, process.env.SECRET_OR_KEY, {}, (err, token) => {
                                     const userData = {
                                         _id: user._id,
                                         userName: user.userName,

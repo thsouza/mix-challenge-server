@@ -1,21 +1,27 @@
-const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+/**
+ * Método que verifica o token
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 function verifyToken(req, res, next) {
-    // check header or url parameters or post parameters for token
+    // Verifica se o token está presente no header
     let token = req.headers['x-access-token'];
-    if (!token) return res.status(403).send({ auth: false, errorMessage: res.__('error.no.token.provided') });
+    if (!token) return res.status(403).send({ auth: false, errorMessage: "Nenhum token fornecido." });
 
     if (token.startsWith('Bearer ')) {
-        // Remove Bearer from string
+        // Remove Bearer da string
         token = token.slice(7, token.length);
     }
 
-    // verifies secret and checks exp
+    // Verifica a chave secret e se o token expira
     jwt.verify(token, process.env.SECRET_OR_KEY, (err, decoded) => {
-        if (err) return res.status(500).send({ auth: false, errorMessage: res.__('error.failed.autenticate.token') });
+        if (err) return res.status(500).send({ auth: false, errorMessage: "Token inválido!" });
 
-        // if everything is good, save to request for use in other routes
+        // Se tudo está certo salva no requeste para proximas rotas
         req.userId = decoded.id;
         next();
     });

@@ -10,8 +10,8 @@ const helmet       = require('helmet');
 /** Models */
 require('./src/models');
 
-//token manager
-const VerifyToken = require('./src/config/verifyToken');
+// Middleware para verificação do token
+const VerifyToken = require('./src/config/verifyToken'); 
 
 require('dotenv').config({});
 
@@ -38,22 +38,23 @@ const app = express()
 const userRoutes = require('./src/routes/userRoute')
 const confinementRoutes = require('./src/routes/confinementRoute')
 
-/** middleware */
-app.use(cors())
-app.use(helmet())
-app.use(morgan('dev'))
+/** Middlewares */
+app.use(cors()) // O CORS é um pacote node.js para fornecer um middleware do Connect / Express que pode ser usado para ativar o CORS com várias opções
+app.use(helmet()) // Ajuda a proteger aplicativos Express, configurando vários cabeçalhos HTTP
+app.use(morgan('dev')) // Middleware do log de solicitações HTTP para node.js
 app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }))
 app.use(bodyParser.json({ limit: '5mb' }))
-app.use(passport.initialize())
+app.use(passport.initialize()) // Middleware de autenticação para node.js
 app.use(cookieParser("platformconfinement"))
 
 /** Passport config */
 require('./src/config/passport')(passport)
 
-/** Routes */
+/** Routas */
 app.use('/api/user', userRoutes);
-//app.use('/api/confinement', VerifyToken, confinementRoutes);
+app.use('/api/confinement', VerifyToken, confinementRoutes); // Essa rota necessita de token
 
+// Conecta com o banco de dados
 mongoose.connection
     .once('open', function () {
         if (process.env.NODE_ENV != 'test')
