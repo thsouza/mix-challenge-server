@@ -179,13 +179,15 @@ class ConfinementService {
             let weightEquine     = 200;
             let arrDayFeedEquine = [];
 
-            // Realiza os cálculos de acordoc om a quantidade de dias de confinamento
+            // Realiza os cálculos de acordo com a quantidade de dias de confinamento
             for (let i = 0; i < qtyDays; i++) {
+                // Bovinos
                 dayFeedBovine    = weightBovine * 0.0005;  // Calcula a quantidade de ração diária no período
                 totalFeedBovine += dayFeedBovine;          // Atribui a quantidade diária para totalização da quantidade de ração
                 weightBovine    += 1.1;                    // Peso total estimado do animal ao fim do período
                 arrDayFeedBovine.push(dayFeedBovine*1000); // Armazena em um array a quantidade de ração utilizada por dia
 
+                // Equinos
                 dayFeedEquine    = weightEquine * 0.0005;  // Calcula a quantidade de ração diária no período
                 totalFeedEquine += dayFeedEquine;          // Atribui a quantidade diária para totalização da quantidade de ração
                 weightEquine    += 0.8;                    // Peso total estimado do animal ao fim do período
