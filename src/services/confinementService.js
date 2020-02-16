@@ -200,7 +200,7 @@ class ConfinementService {
             }
             
             // Quantidade de dias de confinamento
-            const qtyDays = Math.round((confinement.endConfinement-confinement.initConfinement)/(1000*60*60*24))
+            const qtyDays = Math.round((confinement.endConfinement-confinement.initConfinement)/(1000*60*60*24)+1)
             
             // Declaração das variáveis
             let totalFeedBovine  = 0;
