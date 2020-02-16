@@ -6,8 +6,8 @@ const ConfinementSchema = new Schema({
     name: { type: String, required: true },
     qtyBovine: { type: Number, required: true, default: 0 },
     qtyEquine: { type: Number, required: true, default: 0 },
-    initConfinement: { type: Date, required: true },
-    endConfinement: { type: Date, required: true },
+    initConfinement: { type: Date, required: true, default: Date.now },
+    endConfinement: { type: Date, required: true, default: Date.now },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

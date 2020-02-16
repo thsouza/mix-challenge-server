@@ -132,6 +132,40 @@ class ConfinementService {
      * @param {*} res 
      * @param {*} next 
      */
+    async getAll (req, res, next) {     
+        try {  
+            const confinements = await Confinement.find();
+            
+            let arrResult = [];
+            
+            for (let i = 0; i < confinements.length; i++) {
+                let record = {
+                    _id: confinements[i]._id,
+                    name: confinements[i].name,
+                    qtyBovine: confinements[i].qtyBovine,
+                    qtyEquine: confinements[i].qtyEquine,
+                    initConfinement: util.dateFormatReverse(confinements[i].initConfinement),
+                    endConfinement: util.dateFormatReverse(confinements[i].endConfinement),
+                    initDate: util.dateFormat(confinements[i].initConfinement),
+                    endDate: util.dateFormat(confinements[i].endConfinement)
+                }
+
+                arrResult.push(record);
+            }
+                
+            return util.resultSuccess(res, arrResult);      
+        } catch (err) {
+            util.resultError400(res, 'Ocorreu um erro desconhecido, tente novamente ou contate o suporte.');
+            next(err);
+        }
+    }
+
+    /**
+     * Retorna um confinamento pelo id
+     * @param {*} req 
+     * @param {*} res 
+     * @param {*} next 
+     */
     async get (req, res, next) {     
         try {  
             if (!req.params.confinementId) {
@@ -185,33 +219,31 @@ class ConfinementService {
                 dayFeedBovine    = weightBovine * 0.0005;  // Calcula a quantidade de ração diária no período
                 totalFeedBovine += dayFeedBovine;          // Atribui a quantidade diária para totalização da quantidade de ração
                 weightBovine    += 1.1;                    // Peso total estimado do animal ao fim do período
-                arrDayFeedBovine.push(dayFeedBovine*1000); // Armazena em um array a quantidade de ração utilizada por dia
+                arrDayFeedBovine.push(dayFeedBovine * confinement.qtyBovine); // Armazena em um array a quantidade total de ração utilizada por dia
 
                 // Equinos
                 dayFeedEquine    = weightEquine * 0.0005;  // Calcula a quantidade de ração diária no período
                 totalFeedEquine += dayFeedEquine;          // Atribui a quantidade diária para totalização da quantidade de ração
                 weightEquine    += 0.8;                    // Peso total estimado do animal ao fim do período
-                arrDayFeedEquine.push(dayFeedEquine*1000); // Armazena em um array a quantidade de ração utilizada por dia
+                arrDayFeedEquine.push(dayFeedEquine * confinement.qtyEquine);  // Armazena em um array a quantidade total de ração utilizada por dia
             }
 
             // Objeto com os dados dos bovinos
             const bovine = {
-                totalFeedBovine,
                 weightBovine,
-                totalFeed: totalFeedBovine * qtyDays,
+                totalFeed: totalFeedBovine * confinement.qtyBovine,
                 arrDayFeedBovine
             }
 
             // Objeto com os dados dos equinos
             const equine = {
-                totalFeedEquine,
                 weightEquine,
-                totalFeed: totalFeedEquine * qtyDays,
+                totalFeed: totalFeedEquine * confinement.qtyEquine,
                 arrDayFeedEquine
             }
 
             // Retorna as informações
-            return util.resultSuccess(res, { confinement, qtyDays, bovine, equine });            
+            return util.resultSuccess(res, { confinement, qtyDays, bovine, equine, initDate: util.dateFormat(confinement.initConfinement), endDate: util.dateFormat(confinement.endConfinement) });            
         } catch (err) {
             util.resultError400(res, 'Ocorreu um erro desconhecido, tente novamente ou contate o suporte.');
             next(err);

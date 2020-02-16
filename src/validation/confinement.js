@@ -29,7 +29,7 @@ class ValidateConfinement {
             }
     
         } else {
-            error = util.formatError('Dados não fornecidos!');
+            error = util.formatError('Preencha todos os campos!');
         }
     
         return {

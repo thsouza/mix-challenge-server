@@ -6,6 +6,11 @@ const ConfinementService = require('../services/confinementService');
 
 // @route  GET api/confinement/
 // @desc   Get confinement
+// @access Authenticated
+router.get('/', ConfinementService.getAll);
+
+// @route  GET api/confinement/
+// @desc   Get confinement
 // @params confinementId
 // @access Authenticated
 router.get('/:confinementId', ConfinementService.get);
